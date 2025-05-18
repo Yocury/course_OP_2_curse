@@ -76,12 +76,11 @@ public abstract class PagePanel extends JPanel {
         if (title.equals("Партии")) {
             addButton.addActionListener(e -> AddButches());
             deleteButton.addActionListener(e -> Delete("batches"));
-
         }
     }
 
-    private void EditCell(String title) {
-
+    private void EditCellOrders()
+    {
         int selectedRow = table.getSelectedRow();
         int selectedColumn = table.getSelectedColumn();
         if (selectedRow == -1) {
@@ -91,7 +90,43 @@ public abstract class PagePanel extends JPanel {
         String value = table.getValueAt(selectedRow, selectedColumn).toString();
         String changed;
         Object id = table.getValueAt(selectedRow, 0);
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Вы уверены, что хотите изменить ячейку с данными: " + value + "?",
+                "Подтверждение",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (selectedColumn == 8)
+            {
+                String[] options = {"В обработке", "В исполнении", "Выполнен", "Отменен"};
+                changed = (String) JOptionPane.showInputDialog(this, "Введите статус заказа", "Выбор настройки заказа",
+                        JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            }
+            if (CheckForEdit(selectedColumn)) {
+                changed = JOptionPane.showInputDialog(this, "Введите измененные данные");
+                if (changed == null) {
+                    JOptionPane.showMessageDialog(this, "Введите новые данные.");
+                    return;
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Данную ячейку нельзя изменить.");
+                return;
+            }
+            db.UpdateDBCell(id, "Заказы", getColumnNameByIndex(selectedColumn), changed);
+            updateData();
+        }
 
+    }
+
+    private void EditCell(String title) {
+        int selectedRow = table.getSelectedRow();
+        int selectedColumn = table.getSelectedColumn();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Выберите ячейку.");
+            return;
+        }
+        String value = table.getValueAt(selectedRow, selectedColumn).toString();
+        String changed;
+        Object id = table.getValueAt(selectedRow, 0);
 
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Вы уверены, что хотите изменить ячейку с данными: " + value + "?",

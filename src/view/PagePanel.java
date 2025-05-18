@@ -3,10 +3,13 @@ package view;
 
 import Data.DB_manager;
 import Data.DataService;
+import Entities.Butches;
+import Entities.Order;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.List;
 
 public abstract class PagePanel extends JPanel {
     protected JTable table;
@@ -125,6 +128,7 @@ public abstract class PagePanel extends JPanel {
                     }
                 }
             }
+
             db.UpdateDBCell(id, title, getColumnNameByIndex(selectedColumn), changed);
             updateData();
         }
@@ -219,6 +223,7 @@ public abstract class PagePanel extends JPanel {
         String status;
         String id_batches;
         int price;
+        int tempInt;
 
         sourse = JOptionPane.showInputDialog(this, "Введите источник заказа");
         if (sourse == null || sourse.trim().isEmpty()) {
@@ -275,11 +280,53 @@ public abstract class PagePanel extends JPanel {
                 int id = (db.getId("orders") + 1);
                 db.connect();
                 db.addOrderToDB(id, sourse, count, street, building, date, number, status, id_batches, price);
+                tempInt = Integer.parseInt(id_batches);
+                updateBatchStatusIfEmpty(tempInt);
             }
             else {
                 JOptionPane.showMessageDialog(null,dataService.messageCanAdd);
             }
     }
+
+    public void updateBatchStatusIfEmpty(int batchId){
+        Butches batch = dataService.getBatchById(batchId);
+        if (batch == null) {
+            System.out.println("Партия с ID " + batchId + " не найдена.");
+            return;
+        }
+
+        int totalCount = batch.getCount();
+
+        // Получаем все заказы по партии
+        List<Order> orders = db.LoadDBFilterOrders(batchId);
+
+        // Считаем сколько товара уже продано
+        int soldCount = 0;
+        for (Order order : orders) {
+            soldCount += order.getCount();
+        }
+
+        int remaining = totalCount - soldCount;
+
+        // Если товара нет, меняем статус
+        if (remaining <= 0 && !batch.getStatus().equalsIgnoreCase("Продана")) {
+            try {
+                db.updateBatchStatus(batchId, "Продана");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Статус партии " + batchId + " обновлен на 'Закончен'");
+        } else if (remaining > 0 && !batch.getStatus().equalsIgnoreCase("В продаже")) {
+            try {
+                db.updateBatchStatus(batchId, "В продаже");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Статус партии " + batchId + " обновлен на 'В продаже'");
+        }
+    }
+
+
 
     protected void addButtonToPanel(JButton button) {
         buttonPanel.add(button);

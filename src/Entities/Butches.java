@@ -7,14 +7,16 @@ public class Butches {
     private int amount; // Стоимость
     private String status; //Состояние
     private int count;
+    private int avgPrice;
 
-    public Butches(int id, String provider, String date, int amount, String status, int count) {
+    public Butches(int id, String provider, String date, int amount, String status, int count,int avgPrice) {
         this.id = id;
         this.provider = provider;
         this.date = date;
         this.amount = amount;
         this.status = status;
         this.count = count;
+        this.avgPrice = avgPrice;
     }
     public String[] toDoubleArray() { // Для записи в таблицу.
         return new String[] {
@@ -23,7 +25,8 @@ public class Butches {
                 date,
                 String.valueOf(amount),  // если count — число
                 status,
-                String.valueOf(count)
+                String.valueOf(count),
+                String.valueOf(avgPrice)
         };
     }
 

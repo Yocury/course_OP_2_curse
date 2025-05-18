@@ -97,26 +97,26 @@ public class BatchesPage extends PagePanel {
     @Override
     public boolean CheckForEdit(int column)
     {
-        return ((column > 1) || (column != 3));
+        return ((column > 1) && (column != 3 )) && (column != 6);
     }
 
     @Override
     public String getColumnNameByIndex(int column) {
         ArrayList<String> columnNames = new ArrayList<String>();
-        Collections.addAll(columnNames, "id", "provider", "date", "amount", "status", "count");
+        Collections.addAll(columnNames, "id", "provider", "date", "amount", "status", "count", "avg_price");
         return columnNames.get(column);
     }
 
     @Override
     public void updateData() {
         var batches = dataService.getButchesFromDB();
-        String[][] tableData = new String[batches.size()][6]; // Увеличиваем размер массива
+        String[][] tableData = new String[batches.size()][7]; // Увеличиваем размер массива
         for (int i = 0; i < batches.size(); i++) {
             tableData[i] = batches.get(i); // Данные партий
         }
         table.setModel(new javax.swing.table.DefaultTableModel(
                 tableData,
-                new String[]{"ID", "Источник", "Дата", "Стоимость", "Состояние", "Количество товара"} //
+                new String[]{"ID", "Источник", "Дата", "Стоимость", "Состояние", "Количество товара", "Средняя цена"} //
         ));
     }
 }

@@ -2,14 +2,14 @@ package Entities;
 
 public class Butches {
     private int id;
-    private String provider; // поставщик
-    private String date;
+    private final String provider; // поставщик
+    private final String date;
     private int amount; // Стоимость
     private String status; //Состояние
     private int count;
-    private int avgPrice;
+    private final int avgPrice;
 
-    public Butches(int id, String provider, String date, int amount, String status, int count,int avgPrice) {
+    public Butches(int id, String provider, String date, int amount, String status, int count, int avgPrice) {
         this.id = id;
         this.provider = provider;
         this.date = date;
@@ -18,8 +18,9 @@ public class Butches {
         this.count = count;
         this.avgPrice = avgPrice;
     }
+
     public String[] toDoubleArray() { // Для записи в таблицу.
-        return new String[] {
+        return new String[]{
                 String.valueOf(id),     //преобразуем в строку
                 provider,
                 date,

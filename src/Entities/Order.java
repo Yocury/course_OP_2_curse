@@ -1,16 +1,16 @@
 package Entities;
 
 public class Order {
-    private int id; // айди
-    private String sourse; //Источник заказа
-    private int count; // количество товара
-    private String street; // улица
-    private String building; // дом
-    private int id_batches; //
-    private String date; //Дата
-    private String number; // Номер телефона клиента
+    private final int id; // айди
+    private final String sourse; //Источник заказа
+    private final int count; // количество товара
+    private final String street; // улица
+    private final String building; // дом
+    private final int id_batches; //
+    private final String date; //Дата
+    private final String number; // Номер телефона клиента
     private String status; // состояние заказа
-    private int price;
+    private final int price;
 
     public String[] toDoubleArray() { // Для записи в таблицу.
         return new String[]{
@@ -28,20 +28,12 @@ public class Order {
     }
 
 
-    public int getId() {
-        return id;
-    }
-
     public int getPrice() {
         return price;
     }
 
     public int getCount() {
         return count;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public Order(int id, String sourse, int count, String street, String building, int id_batches, String date, String number, String status, int price) {
@@ -55,5 +47,13 @@ public class Order {
         this.number = number;
         this.status = status;
         this.price = price;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

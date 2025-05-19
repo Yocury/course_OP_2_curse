@@ -5,13 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
-    private CardLayout cardLayout;
-    private JPanel contentPanel;
-    private OrdersPage ordersPage;
-    private ExpensesPage expensesPage;
-    private BatchesPage batchesPage;
-
-    private JPanel navigationPanel; // Добавляем поле для панели навигации
+    private final CardLayout cardLayout;
+    private final JPanel contentPanel;
+    private final OrdersPage ordersPage;
 
     public MainFrame() {
         setTitle("Управление данными");
@@ -23,8 +19,8 @@ public class MainFrame extends JFrame {
 
         // Создаем страницы
         ordersPage = new OrdersPage();
-        expensesPage = new ExpensesPage();
-        batchesPage = new BatchesPage(this);
+        ExpensesPage expensesPage = new ExpensesPage();
+        BatchesPage batchesPage = new BatchesPage(this);
 
         contentPanel.add(ordersPage, "Заказы");
         contentPanel.add(expensesPage, "Расходы");
@@ -33,7 +29,8 @@ public class MainFrame extends JFrame {
         add(contentPanel);
 
         // Верхняя панель навигации
-        navigationPanel = new JPanel(new GridLayout(1, 5)); // Доп. баллы за grid Layout.
+        // Добавляем поле для панели навигации
+        JPanel navigationPanel = new JPanel(new GridLayout(1, 5)); // Доп. баллы за grid Layout.
 
         JButton ordersButton = createNavButton("Заказы", ordersPage);
         JButton expensesButton = createNavButton("Расходы", expensesPage);

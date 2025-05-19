@@ -20,7 +20,7 @@ public abstract class PagePanel extends JPanel {
     protected JButton refreshButton;
     public JPanel buttonPanel;
     private final DB_manager db;
-    private DataService.BatchAnalysis dataService;
+    private final DataService.BatchAnalysis dataService;
 
     public PagePanel(String title) {
         setLayout(new BorderLayout());
@@ -79,8 +79,7 @@ public abstract class PagePanel extends JPanel {
         }
     }
 
-    private void EditCellOrders()
-    {
+    private void EditCellOrders() {
         int selectedRow = table.getSelectedRow();
         int selectedColumn = table.getSelectedColumn();
         if (selectedRow == -1) {
@@ -95,8 +94,7 @@ public abstract class PagePanel extends JPanel {
                 "Подтверждение",
                 JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            if (selectedColumn == 8)
-            {
+            if (selectedColumn == 8) {
                 String[] options = {"В обработке", "В исполнении", "Выполнен", "Отменен"};
                 changed = (String) JOptionPane.showInputDialog(this, "Введите статус заказа", "Выбор настройки заказа",
                         JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -164,8 +162,12 @@ public abstract class PagePanel extends JPanel {
                 }
             }
 
-            db.UpdateDBCell(id, title, getColumnNameByIndex(selectedColumn), changed);
-            updateData();
+            if (changed != null) {
+                db.UpdateDBCell(id, title, getColumnNameByIndex(selectedColumn), changed);
+                updateData();
+            } else {
+                JOptionPane.showMessageDialog(this, "Изменения не внесены!");
+            }
         }
     }
 
@@ -200,13 +202,21 @@ public abstract class PagePanel extends JPanel {
         String date;
 
         description = JOptionPane.showInputDialog(this, "Введите название расходов");
-
+        if (description == null || description.trim().isEmpty()) {
+            return;
+        }
         String[] types = {"Персонал", "Реклама", "Аренда", "Бухгалтерия", "Техника"};
         type = (String) JOptionPane.showInputDialog(this, "Введите тип расходов", "Выбор типа",
                 JOptionPane.QUESTION_MESSAGE, null, types, types[0]
         );
         amount = JOptionPane.showInputDialog(this, "Введите сумму расходов");
+        if (amount == null || amount.trim().isEmpty()) {
+            return;
+        }
         date = JOptionPane.showInputDialog(this, "Введите дату расходов");
+        if (date == null || date.trim().isEmpty()) {
+            return;
+        }
         int id = (db.getId("expenses") + 1);
         db.connect();
         db.addExpensesDB(id, description, type, amount, date);
@@ -225,16 +235,26 @@ public abstract class PagePanel extends JPanel {
         String temp;
 
         provider = JOptionPane.showInputDialog(this, "Введите поставщика");
+        if (provider == null || provider.trim().isEmpty()) {
+            return;
+        }
         amount = JOptionPane.showInputDialog(this, "Введите стоимость партии");
+        if (amount == null || amount.trim().isEmpty()) {
+            return;
+        }
         String[] options = {"В обработке", "В продаже", "Продана",};
         status = (String) JOptionPane.showInputDialog(this, "Введите статус партии", "Выбор статуса партии",
                 JOptionPane.QUESTION_MESSAGE, null, options, options[0]
         );
         date = JOptionPane.showInputDialog(this, "Введите дату партии");
+        if (date == null || date.trim().isEmpty()) {
+            return;
+        }
         temp = JOptionPane.showInputDialog(this, "Введите кол-во товара");
-        try { //
+        try {
             count = Integer.parseInt(temp);
         } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Недопустимые символы в количестве!");
             return;
         }
         if (temp == null || temp.trim().isEmpty()) {
@@ -277,53 +297,52 @@ public abstract class PagePanel extends JPanel {
         id_batches = JOptionPane.showInputDialog(this, "Введите ID партии");
 
         dataService.canAddOrder(Integer.parseInt(id_batches), count);
-            if(dataService.canAdd) {
+        if (dataService.canAdd) {
 
-                street = JOptionPane.showInputDialog(this, "Введите улицу");
-                if (street == null || street.trim().isEmpty()) {
-                    return;
-                }
-                building = JOptionPane.showInputDialog(this, "Введите дом и корпус");
-                if (building == null || building.trim().isEmpty()) {
-                    return;
-                }
-                date = JOptionPane.showInputDialog(this, "Введите дату в формате день-месяц-год");
-                if (date == null || date.trim().isEmpty()) {
-                    return;
-                }
-                number = JOptionPane.showInputDialog(this, "Введите номер клиента"); //TODO
-                if (number == null || number.trim().isEmpty()) {
-                    return;
-                }
-
-
-                String[] options = {"В обработке", "В исполнении", "Выполнен", "Отменен"};
-                status = (String) JOptionPane.showInputDialog(this, "Введите статус заказа", "Выбор статуса заказа",
-                        JOptionPane.QUESTION_MESSAGE, null, options, options[0]
-                );
-
-                temp = JOptionPane.showInputDialog(this, "Введите стоимость товара за ед.");
-                try { //
-                    price = Integer.parseInt(temp);
-                } catch (NumberFormatException e) {
-                    return;
-                }
-                if (temp == null || temp.trim().isEmpty()) {
-                    return;
-                }
-
-                int id = (db.getId("orders") + 1);
-                db.connect();
-                db.addOrderToDB(id, sourse, count, street, building, date, number, status, id_batches, price);
-                tempInt = Integer.parseInt(id_batches);
-                updateBatchStatusIfEmpty(tempInt);
+            street = JOptionPane.showInputDialog(this, "Введите улицу");
+            if (street == null || street.trim().isEmpty()) {
+                return;
             }
-            else {
-                JOptionPane.showMessageDialog(null,dataService.messageCanAdd);
+            building = JOptionPane.showInputDialog(this, "Введите дом и корпус");
+            if (building == null || building.trim().isEmpty()) {
+                return;
             }
+            date = JOptionPane.showInputDialog(this, "Введите дату в формате день-месяц-год");
+            if (date == null || date.trim().isEmpty()) {
+                return;
+            }
+            number = JOptionPane.showInputDialog(this, "Введите номер клиента"); //TODO
+            if (number == null || number.trim().isEmpty()) {
+                return;
+            }
+
+
+            String[] options = {"В обработке", "В исполнении", "Выполнен", "Отменен"};
+            status = (String) JOptionPane.showInputDialog(this, "Введите статус заказа", "Выбор статуса заказа",
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]
+            );
+
+            temp = JOptionPane.showInputDialog(this, "Введите стоимость товара за ед.");
+            try { //
+                price = Integer.parseInt(temp);
+            } catch (NumberFormatException e) {
+                return;
+            }
+            if (temp == null || temp.trim().isEmpty()) {
+                return;
+            }
+
+            int id = (db.getId("orders") + 1);
+            db.connect();
+            db.addOrderToDB(id, sourse, count, street, building, date, number, status, id_batches, price);
+            tempInt = Integer.parseInt(id_batches);
+            updateBatchStatusIfEmpty(tempInt);
+        } else {
+            JOptionPane.showMessageDialog(null, dataService.messageCanAdd);
+        }
     }
 
-    public void updateBatchStatusIfEmpty(int batchId){
+    public void updateBatchStatusIfEmpty(int batchId) {
         Butches batch = dataService.getBatchById(batchId);
         if (batch == null) {
             System.out.println("Партия с ID " + batchId + " не найдена.");
@@ -360,7 +379,6 @@ public abstract class PagePanel extends JPanel {
             System.out.println("Статус партии " + batchId + " обновлен на 'В продаже'");
         }
     }
-
 
 
     protected void addButtonToPanel(JButton button) {

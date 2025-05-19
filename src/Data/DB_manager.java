@@ -112,12 +112,16 @@ public class DB_manager {
 
 
     public void UpdateDBCell(Object id, String title, String column, String newValue) {
-        if (title.equals("Заказы")) {
-            title = "orders";
-        } else if (title.equals("Расходы")) {
-            title = "expenses";
-        } else if (title.equals("Партии")) {
-            title = "batches";
+        switch (title) {
+            case "Заказы":
+                title = "orders";
+                break;
+            case "Расходы":
+                title = "expenses";
+                break;
+            case "Партии":
+                title = "batches";
+                break;
         }
 
         String sql = "UPDATE public.\"" + title + "\" SET \"" + column + "\" = ? WHERE id = ?";
@@ -170,7 +174,7 @@ public class DB_manager {
                 int count = ro.getInt("count");
                 double avgPriceDot = ro.getDouble("avg_price");
                 int avgPrice = (int) avgPriceDot;
-                Butches butches = new Butches(id, provider, date, amount, status, count,avgPrice);
+                Butches butches = new Butches(id, provider, date, amount, status, count, avgPrice);
                 all_butches.add(butches); // заполняем лист заказов.
             }
         } catch (SQLException e) {
@@ -180,8 +184,7 @@ public class DB_manager {
         return all_butches;
     }
 
-    public void updateBatchStatus(int batch, String status) throws SQLException
-    {
+    public void updateBatchStatus(int batch, String status) throws SQLException {
         String sql = "UPDATE batches SET status = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, status);
@@ -393,7 +396,7 @@ public class DB_manager {
 
         String sql = "INSERT INTO public.\"batches\" " +
                 "(id, provider, amount, status, date, count)" +
-                "VALUES (?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.setString(2, provider);

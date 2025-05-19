@@ -34,8 +34,7 @@ public class DataService {
         return expenses;
     }
 
-    public List<String[]> getFilterExpensesFromDB(String type)
-    {
+    public List<String[]> getFilterExpensesFromDB(String type) {
         db.connect();
         List<Expenses> expensesDB;
         expensesDB = db.LoadFilterExpensesTypes(type);
@@ -68,8 +67,6 @@ public class DataService {
         }
         return null; // Партия не найдена
     }
-
-
 
 
     public List<String[]> getButchesFromDB() {
@@ -130,7 +127,7 @@ public class DataService {
                 return;
             }
 
-           canAdd = true;
+            canAdd = true;
         }
 
         public BatchAnalysis(int batchId, int totalCount, int ordersCount, int soldCount, int remainingCount,
@@ -164,12 +161,22 @@ public class DataService {
         int totalCount = batch.getCount();
         int batchAmount = batch.getAmount();
 
-        List<Order> orders = db.LoadDBFilterOrders(batchId);
+        List<Order> allOrders = db.LoadDBFilterOrders(batchId);
 
-        int ordersCount = orders.size();
+        // Фильтруем только неотменённые заказы
+        List<Order> activeOrders = new ArrayList<>();
+        for (Order o : allOrders) {
+            String status = o.getStatus();
+            if (status == null) status = "";
+            if (!status.equalsIgnoreCase("Отменено")) {
+                activeOrders.add(o);
+            }
+        }
+
+        int ordersCount = activeOrders.size();
         int soldCount = 0;
         int ordersTotalSum = 0;
-        for (Order o : orders) {
+        for (Order o : activeOrders) {
             soldCount += o.getCount();
             ordersTotalSum += o.getCount() * o.getPrice();
         }

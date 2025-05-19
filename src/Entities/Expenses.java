@@ -1,11 +1,11 @@
 package Entities;
 
 public class Expenses {
-    private int id;
-    private String description;
-    private String type;
-    private int amount;
-    private String date;
+    private final int id;
+    private final String description;
+    private final String type;
+    private final int amount;
+    private final String date;
 
     public Expenses(int id, String description, String type, int amount, String date) {
         this.id = id;
@@ -16,7 +16,7 @@ public class Expenses {
     }
 
     public String[] toDoubleArray() { // Для записи в таблицу.
-        return new String[] {
+        return new String[]{
                 String.valueOf(id),     //преобразуем в строку
                 description,
                 type,

@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class ExpensesPage extends PagePanel {
-    private DataService dataService;
-    private JButton searchButton;
-    private JButton filterButton;
-    private JButton historyButton;
+    private final DataService dataService;
 
 
     public ExpensesPage() {
@@ -20,14 +17,13 @@ public class ExpensesPage extends PagePanel {
 
     @Override
     protected void addCustomButtons() {
-    filterButton = new JButton("Фильтрация");
+        JButton filterButton = new JButton("Фильтрация");
 
-    addButtonToPanel(filterButton);
-    filterButton.addActionListener(e -> FilteringExpensesToTypes());
+        addButtonToPanel(filterButton);
+        filterButton.addActionListener(e -> FilteringExpensesToTypes());
     }
 
-    private void FilteringExpensesToTypes()
-    {
+    private void FilteringExpensesToTypes() {
         String type;
         String[] types = {"Персонал", "Реклама", "Аренда", "Бухгалтерия", "Техника"};
         type = (String) JOptionPane.showInputDialog(this, "Введите тип расходов", "Фильтрация",
@@ -47,15 +43,14 @@ public class ExpensesPage extends PagePanel {
 
     @Override
     public String getColumnNameByIndex(int column) {
-        ArrayList<String> columnNames = new ArrayList<String>();
+        ArrayList<String> columnNames = new ArrayList<>();
         Collections.addAll(columnNames, "id", "description", "type", "amount", "date");
         return columnNames.get(column);
     }
 
     @Override
-    public boolean CheckForEdit(int column)
-    {
-        return ((column != 0) || (column != 2) || (column != 4));
+    public boolean CheckForEdit(int column) {
+        return ((column != 0) && (column != 2) && (column != 4));
     }
 
     @Override

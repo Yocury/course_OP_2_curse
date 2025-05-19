@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class BatchesPage extends PagePanel {
-    private DataService dataService;
-    private JButton filterButton;
-    private JButton refreshButton;
-    private JButton analysisButton;
+    private final DataService dataService;
     private MainFrame mainFrame;
 
     public BatchesPage(MainFrame mainFrame) {
@@ -25,7 +22,7 @@ public class BatchesPage extends PagePanel {
         dataService = new DataService();
     }
 
-    private void redirection(){
+    private void redirection() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Выберите партию для фильтрации.");
@@ -40,10 +37,10 @@ public class BatchesPage extends PagePanel {
     protected void addCustomButtons() { //Передаем кнопки.
 
         //создаем кнопки для их передачи
-        filterButton = new JButton("Фильтрация по партиям");
+        JButton filterButton = new JButton("Фильтрация по партиям");
         addButtonToPanel(filterButton);
         filterButton.addActionListener(e -> redirection());
-        analysisButton = new JButton("Анализ партии");
+        JButton analysisButton = new JButton("Анализ партии");
         addButtonToPanel(analysisButton);
         analysisButton.addActionListener(e -> showAnalysis());
     }
@@ -93,16 +90,14 @@ public class BatchesPage extends PagePanel {
     }
 
 
-
     @Override
-    public boolean CheckForEdit(int column)
-    {
-        return ((column > 1) && (column != 3 )) && (column != 6);
+    public boolean CheckForEdit(int column) {
+        return ((column > 1) && (column != 3)) && (column != 6);
     }
 
     @Override
     public String getColumnNameByIndex(int column) {
-        ArrayList<String> columnNames = new ArrayList<String>();
+        ArrayList<String> columnNames = new ArrayList<>();
         Collections.addAll(columnNames, "id", "provider", "date", "amount", "status", "count", "avg_price");
         return columnNames.get(column);
     }

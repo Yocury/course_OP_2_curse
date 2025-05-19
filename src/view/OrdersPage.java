@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class OrdersPage extends PagePanel {
-    private DataService dataService;
-    private JButton searchButton;
-    private JButton filterButton;
+    private final DataService dataService;
 
     public OrdersPage() {
         super("Заказы");
@@ -17,8 +15,7 @@ public class OrdersPage extends PagePanel {
     }
 
     @Override
-    public boolean CheckForEdit(int column)
-    {
+    public boolean CheckForEdit(int column) {
         return (column > 1) && (column != 4);
     }
 
@@ -26,9 +23,7 @@ public class OrdersPage extends PagePanel {
     protected void addCustomButtons() { //Передаем кнопки.
 
         //создаем кнопки для их передачи
-        searchButton = new JButton("Поиск");
-        filterButton = new JButton("Фильтрация по партиям");
-        addButtonToPanel(searchButton);
+        JButton filterButton = new JButton("Фильтрация по партиям");
         addButtonToPanel(filterButton);
         filterButton.addActionListener(e -> filteringOrdersToBatches());
     }
@@ -36,7 +31,7 @@ public class OrdersPage extends PagePanel {
     @Override
     public String getColumnNameByIndex(int column) {
         ArrayList<String> columnNames = new ArrayList<>();
-        Collections.addAll(columnNames, "id", "sourse", "count", "street","building","ID batches", "date", "number", "status");
+        Collections.addAll(columnNames, "id", "sourse", "count", "street", "building", "ID batches", "date", "number", "status");
         return columnNames.get(column);
     }
 
@@ -50,7 +45,7 @@ public class OrdersPage extends PagePanel {
         }
         table.setModel(new javax.swing.table.DefaultTableModel(
                 tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица","Дом","ID партии", "Дата", "Номер телефона", "Состояние"} // Добавляем "ID"
+                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние"} // Добавляем "ID"
         ));
     }
 
@@ -62,10 +57,9 @@ public class OrdersPage extends PagePanel {
         }
         table.setModel(new javax.swing.table.DefaultTableModel(
                 tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица","Дом","ID партии", "Дата", "Номер телефона", "Состояние","Стоимость за ед."}
+                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние", "Стоимость за ед."}
         ));
     }
-
 
 
     @Override
@@ -77,7 +71,7 @@ public class OrdersPage extends PagePanel {
         }
         table.setModel(new javax.swing.table.DefaultTableModel(
                 tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица","Дом","ID партии", "Дата", "Номер телефона", "Состояние","Стоимость за ед."} // Добавляем "ID"
+                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние", "Стоимость за ед."} // Добавляем "ID"
         ));
     }
 }

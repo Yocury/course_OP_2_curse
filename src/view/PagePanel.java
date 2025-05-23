@@ -268,78 +268,37 @@ public abstract class PagePanel extends JPanel {
 
 
     private void AddOrder() {
-        String sourse;
-        int count;
-        String temp;
-        String street;
-        String building;
-        String date;
-        String number;
-        String status;
-        String id_batches;
-        int price;
-        int tempInt;
+        // Показываем диалог добавления заказа
+        AddOrderDialog dialog = new AddOrderDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+            (JFrame) SwingUtilities.getWindowAncestor(this) : null);
+        dialog.setVisible(true);
 
-        sourse = JOptionPane.showInputDialog(this, "Введите источник заказа");
-        if (sourse == null || sourse.trim().isEmpty()) {
-            return;
-        }
-        temp = JOptionPane.showInputDialog(this, "Введите кол-во товара.");
-        try {
-            count = Integer.parseInt(temp);
-        } catch (NumberFormatException e) {
-            return;
-        }
-        if (temp == null || temp.trim().isEmpty()) {
+        if (!dialog.isApproved()) {
             return;
         }
 
-        id_batches = JOptionPane.showInputDialog(this, "Введите ID партии");
-
-        dataService.canAddOrder(Integer.parseInt(id_batches), count);
-        if (dataService.canAdd) {
-
-            street = JOptionPane.showInputDialog(this, "Введите улицу");
-            if (street == null || street.trim().isEmpty()) {
-                return;
-            }
-            building = JOptionPane.showInputDialog(this, "Введите дом и корпус");
-            if (building == null || building.trim().isEmpty()) {
-                return;
-            }
-            date = JOptionPane.showInputDialog(this, "Введите дату в формате день-месяц-год");
-            if (date == null || date.trim().isEmpty()) {
-                return;
-            }
-            number = JOptionPane.showInputDialog(this, "Введите номер клиента"); //TODO
-            if (number == null || number.trim().isEmpty()) {
-                return;
-            }
-
-
-            String[] options = {"В обработке", "В исполнении", "Выполнен", "Отменен"};
-            status = (String) JOptionPane.showInputDialog(this, "Введите статус заказа", "Выбор статуса заказа",
-                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]
-            );
-
-            temp = JOptionPane.showInputDialog(this, "Введите стоимость товара за ед.");
-            try { //
-                price = Integer.parseInt(temp);
-            } catch (NumberFormatException e) {
-                return;
-            }
-            if (temp == null || temp.trim().isEmpty()) {
-                return;
-            }
-
-            int id = (db.getId("orders") + 1);
-            db.connect();
-            db.addOrderToDB(id, sourse, count, street, building, date, number, status, id_batches, price);
-            tempInt = Integer.parseInt(id_batches);
-            updateBatchStatusIfEmpty(tempInt);
-        } else {
-            JOptionPane.showMessageDialog(null, dataService.messageCanAdd);
+        Butches selectedBatch = dialog.getSelectedBatch();
+        if (selectedBatch == null) {
+            return;
         }
+
+        // Получаем данные из диалога
+        String source = dialog.getSource();
+        String count = dialog.getCount();
+        String street = dialog.getStreet();
+        String building = dialog.getBuilding();
+        String date = dialog.getDate();
+        String phone = dialog.getPhone();
+        String status = dialog.getStatus();
+        String price = dialog.getPrice();
+
+        // Добавляем заказ в базу данных
+        int id = db.getId("orders") + 1;
+        db.connect();
+        db.addOrderDB(id, selectedBatch.getId(), source, count, street, building, date, phone, status, price);
+        
+        // Обновляем данные в таблице
+        updateData();
     }
 
     public void updateBatchStatusIfEmpty(int batchId) {

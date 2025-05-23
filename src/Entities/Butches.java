@@ -2,7 +2,7 @@ package Entities;
 
 public class Butches {
     private int id;
-    private final String provider; // поставщик
+    private String provider; // поставщик
     private final String date;
     private int amount; // Стоимость
     private String status; //Состояние
@@ -71,5 +71,17 @@ public class Butches {
 
     public int getRemainder() {
         return remainder;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public int getAvgPrice() {
+        return avgPrice;
     }
 }

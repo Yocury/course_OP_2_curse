@@ -359,7 +359,8 @@ public class DB_manager {
     }
 
 
-    public void addOrderToDB(int id, String sourse, int count, String street, String building, String date, String number, String status, String id_batches, int price) {
+    public void addOrderDB(int id, int batchId, String source, String count, String street, String building, 
+                          String date, String phone, String status, String price) {
         if (connection == null) {
             System.err.println("Нет подключения к базе данных!");
             return;
@@ -367,24 +368,23 @@ public class DB_manager {
 
         String sql = "INSERT INTO public.\"orders\" " +
                 "(id, sourse, count, street, building, date, number, status, \"ID batches\", price) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
-
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            pstmt.setString(2, sourse);
-            pstmt.setInt(3, count);
+            pstmt.setLong(1, id);  // bigint
+            pstmt.setString(2, source);
+            pstmt.setLong(3, Long.parseLong(count));  // bigint
             pstmt.setString(4, street);
             pstmt.setString(5, building);
             pstmt.setString(6, date);
-            pstmt.setString(7, number);
+            pstmt.setString(7, phone);
             pstmt.setString(8, status);
-            pstmt.setInt(9, Integer.parseInt(id_batches));
-            pstmt.setInt(10, price);
-
+            pstmt.setInt(9, batchId);  // integer
+            pstmt.setLong(10, Long.parseLong(price));  // bigint
             pstmt.executeUpdate();
-            System.out.println("Заказ сохранён в базу данных.");
+            System.out.println("Заказ добавлен в базу данных.");
         } catch (SQLException e) {
-            System.err.println("Ошибка при добавлении заказа в базу: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("Ошибка при добавлении заказа: " + e.getMessage());
         }
     }
 

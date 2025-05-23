@@ -196,30 +196,27 @@ public abstract class PagePanel extends JPanel {
     }
 
     private void AddExpenses() {
-        String description;
-        String type;
-        String amount;
-        String date;
+        AddExpenseDialog dialog = new AddExpenseDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+            (JFrame) SwingUtilities.getWindowAncestor(this) : null);
+        dialog.setVisible(true);
 
-        description = JOptionPane.showInputDialog(this, "Введите название расходов");
-        if (description == null || description.trim().isEmpty()) {
+        if (!dialog.isApproved()) {
             return;
         }
-        String[] types = {"Персонал", "Реклама", "Аренда", "Бухгалтерия", "Техника"};
-        type = (String) JOptionPane.showInputDialog(this, "Введите тип расходов", "Выбор типа",
-                JOptionPane.QUESTION_MESSAGE, null, types, types[0]
-        );
-        amount = JOptionPane.showInputDialog(this, "Введите сумму расходов");
-        if (amount == null || amount.trim().isEmpty()) {
-            return;
-        }
-        date = JOptionPane.showInputDialog(this, "Введите дату расходов");
-        if (date == null || date.trim().isEmpty()) {
-            return;
-        }
-        int id = (db.getId("expenses") + 1);
+
+        // Получаем данные из диалога
+        String description = dialog.getDescription();
+        String type = dialog.getExpenseType();
+        String amount = dialog.getAmount();
+        String date = dialog.getDate();
+
+        // Добавляем расход в базу данных
+        int id = db.getId("expenses") + 1;
         db.connect();
         db.addExpensesDB(id, description, type, amount, date);
+        
+        // Обновляем данные в таблице
+        updateData();
     }
 
     public abstract boolean CheckForEdit(int column);
@@ -227,43 +224,28 @@ public abstract class PagePanel extends JPanel {
     protected abstract String getColumnNameByIndex(int colummn);
 
     private void AddButches() {
-        String provider;
-        String amount;
-        String status;
-        String date;
-        int count;
-        String temp;
+        AddBatchDialog dialog = new AddBatchDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+            (JFrame) SwingUtilities.getWindowAncestor(this) : null);
+        dialog.setVisible(true);
 
-        provider = JOptionPane.showInputDialog(this, "Введите поставщика");
-        if (provider == null || provider.trim().isEmpty()) {
-            return;
-        }
-        amount = JOptionPane.showInputDialog(this, "Введите стоимость партии");
-        if (amount == null || amount.trim().isEmpty()) {
-            return;
-        }
-        String[] options = {"В обработке", "В продаже", "Продана",};
-        status = (String) JOptionPane.showInputDialog(this, "Введите статус партии", "Выбор статуса партии",
-                JOptionPane.QUESTION_MESSAGE, null, options, options[0]
-        );
-        date = JOptionPane.showInputDialog(this, "Введите дату партии");
-        if (date == null || date.trim().isEmpty()) {
-            return;
-        }
-        temp = JOptionPane.showInputDialog(this, "Введите кол-во товара");
-        try {
-            count = Integer.parseInt(temp);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Недопустимые символы в количестве!");
-            return;
-        }
-        if (temp == null || temp.trim().isEmpty()) {
+        if (!dialog.isApproved()) {
             return;
         }
 
-        int id = (db.getId("batches") + 1);
+        // Получаем данные из диалога
+        String provider = dialog.getProvider();
+        String amount = dialog.getAmount();
+        String status = dialog.getStatus();
+        String date = dialog.getDate();
+        String count = dialog.getCount();
+
+        // Добавляем партию в базу данных
+        int id = db.getId("batches") + 1;
         db.connect();
-        db.addButchesDB(id, provider, amount, status, date, count);
+        db.addButchesDB(id, provider, amount, status, date, Integer.parseInt(count));
+        
+        // Обновляем данные в таблице
+        updateData();
     }
 
 

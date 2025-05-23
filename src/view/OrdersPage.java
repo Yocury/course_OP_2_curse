@@ -36,17 +36,13 @@ public class OrdersPage extends PagePanel {
     }
 
     protected void filteringOrdersToBatches() {
-        String butchesId;
-        butchesId = JOptionPane.showInputDialog(this, "Введите партию");
-        var orders = dataService.getFilterOrdersDB(butchesId);
-        String[][] tableData = new String[orders.size()][8]; // Увеличиваем размер массива
-        for (int i = 0; i < orders.size(); i++) {
-            tableData[i] = orders.get(i); // Данные заказа
-        }
-        table.setModel(new javax.swing.table.DefaultTableModel(
-                tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние"} // Добавляем "ID"
-        ));
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Выберите партию для фильтрации.");
+                return;
+            }
+            String batchId = table.getValueAt(selectedRow, 5).toString();
+            showOrdersForBatch(batchId);
     }
 
     public void showOrdersForBatch(String batchId) {

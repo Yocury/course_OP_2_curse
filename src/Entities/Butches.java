@@ -8,6 +8,7 @@ public class Butches {
     private String status; //Состояние
     private int count;
     private final int avgPrice;
+    private int remainder;
 
     public Butches(int id, String provider, String date, int amount, String status, int count, int avgPrice) {
         this.id = id;
@@ -27,10 +28,14 @@ public class Butches {
                 String.valueOf(amount),  // если count — число
                 status,
                 String.valueOf(count),
-                String.valueOf(avgPrice)
+                String.valueOf(avgPrice),
+                String.valueOf(remainder)  // добавляем остаток
         };
     }
 
+    public void setRemainder(int remainder) {
+        this.remainder = remainder;
+    }
 
     public int getCount() {
         return count;
@@ -62,5 +67,9 @@ public class Butches {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getRemainder() {
+        return remainder;
     }
 }

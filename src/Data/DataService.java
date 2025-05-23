@@ -75,6 +75,18 @@ public class DataService {
         ButhesDB = db.LoadDBButhes();
         List<String[]> butches = new ArrayList<>();
         for (Butches value : ButhesDB) {
+            // Получаем все заказы для текущей партии
+            List<Order> orders = db.LoadDBFilterOrders(value.getId());
+            int soldCount = 0;
+            // Подсчитываем общее количество проданного товара
+            for (Order order : orders) {
+                if (!order.getStatus().equalsIgnoreCase("Отменено")) {
+                    soldCount += order.getCount();
+                }
+            }
+            // Вычисляем остаток
+            int remainder = value.getCount() - soldCount;
+            value.setRemainder(remainder);
             butches.add(value.toDoubleArray());
         }
         return butches;
@@ -160,7 +172,7 @@ public class DataService {
 
         int totalCount = batch.getCount();
         int batchAmount = batch.getAmount();
-
+        int remainingCount = batch.getRemainder();
         List<Order> allOrders = db.LoadDBFilterOrders(batchId);
 
         // Фильтруем только неотменённые заказы
@@ -180,7 +192,6 @@ public class DataService {
             soldCount += o.getCount();
             ordersTotalSum += o.getCount() * o.getPrice();
         }
-        int remainingCount = totalCount - soldCount;
         double avgPricePerUnit = soldCount > 0 ? (double) ordersTotalSum / soldCount : 0.0;
         double avgPurchasePricePerUnit = totalCount > 0 ? (double) batchAmount / totalCount : 0.0;
         int profit = ordersTotalSum - batchAmount;

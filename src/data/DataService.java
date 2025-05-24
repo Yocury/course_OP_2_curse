@@ -1,15 +1,15 @@
-package Data;
+package data;
 
-import Entities.Butches;
-import Entities.Expenses;
-import Entities.Order;
+import domain.entities.Batch;
+import domain.entities.Expenses;
+import domain.entities.Order;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataService {
 
-    protected DB_manager db = new DB_manager();
+    protected DBManager db = new DBManager();
 
 
     public List<String[]> getOrdersFromDB() {
@@ -57,10 +57,10 @@ public class DataService {
         return orders;
     }
 
-    public Butches getBatchById(int batchId) {
+    public Batch getBatchById(int batchId) {
         db.connect();
-        List<Butches> batches = db.LoadDBButhes();
-        for (Butches batch : batches) {
+        List<Batch> batches = db.LoadDBButhes();
+        for (Batch batch : batches) {
             if (batch.getId() == batchId) {
                 return batch;
             }
@@ -71,10 +71,10 @@ public class DataService {
 
     public List<String[]> getButchesFromDB() {
         db.connect();
-        List<Butches> ButhesDB;
+        List<Batch> ButhesDB;
         ButhesDB = db.LoadDBButhes();
         List<String[]> butches = new ArrayList<>();
-        for (Butches value : ButhesDB) {
+        for (Batch value : ButhesDB) {
             // Получаем все заказы для текущей партии
             List<Order> orders = db.LoadDBFilterOrders(value.getId());
             int soldCount = 0;
@@ -113,7 +113,7 @@ public class DataService {
         }
 
         public void canAddOrder(int batchId, int orderCount) {
-            Butches batch = getBatchById(batchId);
+            Batch batch = getBatchById(batchId);
             if (batch == null) {
                 this.canAdd = false;
                 this.messageCanAdd = "Партия не найдена";
@@ -160,9 +160,9 @@ public class DataService {
 
     public BatchAnalysis analyzeBatch(int batchId) {
         db.connect();
-        List<Butches> batches = db.LoadDBButhes();
-        Butches batch = null;
-        for (Butches b : batches) {
+        List<Batch> batches = db.LoadDBButhes();
+        Batch batch = null;
+        for (Batch b : batches) {
             if (b.getId() == batchId) {
                 batch = b;
                 break;

@@ -1,23 +1,24 @@
-package view;
+package presentation.view.page;
 
-import Data.DataService;
+import data.DataService;
+import presentation.view.MainFrame;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class BatchesPage extends PagePanel {
+public class BatchesPageView extends PagePanelView {
     private final DataService dataService;
     private MainFrame mainFrame;
 
-    public BatchesPage(MainFrame mainFrame) {
+    public BatchesPageView(MainFrame mainFrame) {
         super("Партии");
         this.mainFrame = mainFrame;
         dataService = new DataService();
     }
 
 
-    public BatchesPage() {
+    public BatchesPageView() {
         super("Партии");
         dataService = new DataService();
     }

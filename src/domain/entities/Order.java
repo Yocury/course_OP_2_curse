@@ -1,4 +1,4 @@
-package Entities;
+package domain.entities;
 
 public class Order {
     private final int id; // айди
@@ -9,6 +9,8 @@ public class Order {
     private final int id_batches; //
     private final String date; //Дата
     private final String number; // Номер телефона клиента
+
+
     private String status; // состояние заказа
     private final int price;
 
@@ -28,15 +30,9 @@ public class Order {
     }
 
 
-    public int getPrice() {
-        return price;
-    }
 
-    public int getCount() {
-        return count;
-    }
-
-    public Order(int id, String sourse, int count, String street, String building, int id_batches, String date, String number, String status, int price) {
+    public Order(int id, String sourse, int count, String street, String building, int id_batches,
+                 String date, String number, String status, int price) {
         this.id = id;
         this.sourse = sourse;
         this.count = count;
@@ -49,11 +45,25 @@ public class Order {
         this.price = price;
     }
 
-    public String getStatus() {
-        return status;
-    }
+    public int getPrice() {return price;}
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public int getCount() {return count;}
+
+    public int getId() {return id;}
+
+    public String getSourse() {return sourse;}
+
+    public String getStreet() {return street;}
+
+    public String getBuilding() {return building;}
+
+    public int getId_batches() {return id_batches;}
+
+    public String getDate() {return date;}
+
+    public String getNumber() {return number;}
+
+    public String getStatus() {return status;}
+
+    public void setStatus(String status) {this.status = status;}
 }

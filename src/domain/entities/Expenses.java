@@ -1,4 +1,4 @@
-package Entities;
+package domain.entities;
 
 public class Expenses {
     private final int id;

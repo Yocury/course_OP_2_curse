@@ -1,5 +1,10 @@
-package view;
+package presentation.view;
 
+
+import presentation.view.page.BatchesPageView;
+import presentation.view.page.ExpensesPageView;
+import presentation.view.page.OrdersPageView;
+import presentation.view.page.PagePanelView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,7 +12,7 @@ import java.awt.*;
 public class MainFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel contentPanel;
-    private final OrdersPage ordersPage;
+    private final OrdersPageView ordersPage;
 
     public MainFrame() {
         setTitle("Управление данными");
@@ -18,9 +23,9 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         // Создаем страницы
-        ordersPage = new OrdersPage();
-        ExpensesPage expensesPage = new ExpensesPage();
-        BatchesPage batchesPage = new BatchesPage(this);
+        ordersPage = new OrdersPageView();
+        ExpensesPageView expensesPage = new ExpensesPageView();
+        BatchesPageView batchesPage = new BatchesPageView();
 
         contentPanel.add(ordersPage, "Заказы");
         contentPanel.add(expensesPage, "Расходы");
@@ -53,7 +58,7 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JButton createNavButton(String title, PagePanel page) {
+    private JButton createNavButton(String title, PagePanelView page) {
         JButton button = new JButton(title);
         button.addActionListener(e -> {
             cardLayout.show(contentPanel, title);

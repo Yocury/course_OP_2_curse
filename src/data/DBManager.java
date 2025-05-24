@@ -1,21 +1,21 @@
-package Data;
+package data;
 
-import Entities.Butches;
-import Entities.Expenses;
-import Entities.Order;
+import domain.entities.Batch;
+import domain.entities.Expenses;
+import domain.entities.Order;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DB_manager {
+public class DBManager {
 
     private static final String URL = "jdbc:postgresql://localhost:5433/Orders";
     private static final String USER = "postgres";
     private static final String PASSWORD = "admin";
     private Connection connection;
 
-    public DB_manager() {
+    public DBManager() {
         try {
             Class.forName("org.postgresql.Driver");
 
@@ -56,7 +56,6 @@ public class DB_manager {
             System.err.println("Ошибка при получении максимального ID: " + e.getMessage());
             return -1; // Или другое значение, указывающее на ошибку
         }
-
         return maxId;
     }
 
@@ -146,8 +145,8 @@ public class DB_manager {
     }
 
 
-    public List<Butches> LoadDBButhes() {
-        List<Butches> all_butches = new ArrayList<>();
+    public List<Batch> LoadDBButhes() {
+        List<Batch> all_butches = new ArrayList<>();
         if (connection == null) {
             System.err.println("Нет подключения к базе");
             return null;
@@ -174,8 +173,8 @@ public class DB_manager {
                 int count = ro.getInt("count");
                 double avgPriceDot = ro.getDouble("avg_price");
                 int avgPrice = (int) avgPriceDot;
-                Butches butches = new Butches(id, provider, date, amount, status, count, avgPrice);
-                all_butches.add(butches); // заполняем лист заказов.
+                Batch batch = new Batch(id, provider, date, amount, status, count, avgPrice);
+                all_butches.add(batch); // заполняем лист заказов.
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -359,40 +358,19 @@ public class DB_manager {
     }
 
 
-    public void addOrderDB(int id, int batchId, String source, String count, String street, String building, 
-                          String date, String phone, String status, String price) {
+
+    public void addButchesDB(Batch butch) {
         if (connection == null) {
             System.err.println("Нет подключения к базе данных!");
             return;
         }
 
-        String sql = "INSERT INTO public.\"orders\" " +
-                "(id, sourse, count, street, building, date, number, status, \"ID batches\", price) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setLong(1, id);  // bigint
-            pstmt.setString(2, source);
-            pstmt.setLong(3, Long.parseLong(count));  // bigint
-            pstmt.setString(4, street);
-            pstmt.setString(5, building);
-            pstmt.setString(6, date);
-            pstmt.setString(7, phone);
-            pstmt.setString(8, status);
-            pstmt.setInt(9, batchId);  // integer
-            pstmt.setLong(10, Long.parseLong(price));  // bigint
-            pstmt.executeUpdate();
-            System.out.println("Заказ добавлен в базу данных.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Ошибка при добавлении заказа: " + e.getMessage());
-        }
-    }
-
-    public void addButchesDB(int id, String provider, String amount, String status, String date, int count) {
-        if (connection == null) {
-            System.err.println("Нет подключения к базе данных!");
-            return;
-        }
+        int id = butch.getId();
+        String provider = butch.getProvider();
+        int amount = butch.getAmount();
+        String status = butch.getStatus();
+        String date = butch.getDate();
+        int count = butch.getCount();
 
         String sql = "INSERT INTO public.\"batches\" " +
                 "(id, provider, amount, status, date, count)" +
@@ -400,7 +378,7 @@ public class DB_manager {
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.setString(2, provider);
-            pstmt.setInt(3, Integer.parseInt(amount));
+            pstmt.setInt(3, amount);
             pstmt.setString(4, status);
             pstmt.setString(5, date);
             pstmt.setInt(6, count);

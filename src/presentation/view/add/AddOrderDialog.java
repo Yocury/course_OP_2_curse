@@ -1,7 +1,10 @@
-package view;
+package presentation.view.add;
 
-import Data.DB_manager;
-import Entities.Butches;
+import domain.entities.Batch;
+import domain.usecases.batche.GetAllBatchUseCases;
+import domain.usecases.order.AddOrderUseCase;
+import domain.usecases.order.GetAllOrderUseCase;
+import presentation.MyConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +12,9 @@ import java.util.List;
 import java.util.Vector;
 
 public class AddOrderDialog extends JDialog {
-    private final DB_manager db;
+    private final GetAllOrderUseCase getAllOrderUseCase;
+    private final AddOrderUseCase addOrderUseCase;
+    private final GetAllBatchUseCases getAllBatchUseCases;
     private JComboBox<BatchItem> batchComboBox;
     private JTextField sourceField;
     private JTextField countField;
@@ -20,12 +25,15 @@ public class AddOrderDialog extends JDialog {
     private JComboBox<String> statusComboBox;
     private JTextField priceField;
     private boolean approved = false;
-    private Butches selectedBatch = null;
+    private Batch selectedBatch = null;
     private JLabel avgPriceLabel;
 
     public AddOrderDialog(JFrame parent) {
         super(parent, "Добавление нового заказа", true);
-        this.db = new DB_manager();
+        //this.db = new DB_manager();
+        this.addOrderUseCase = MyConfig.instance().addOrderUseCase();
+        this.getAllOrderUseCase = MyConfig.instance().getAllOrderUseCase();
+        this.getAllBatchUseCases = MyConfig.instance().getAllBatchUseCases();
         setupUI();
     }
 
@@ -44,11 +52,10 @@ public class AddOrderDialog extends JDialog {
         add(titleLabel, gbc);
 
         // Получаем список партий в продаже
-        db.connect();
-        List<Butches> batches = db.LoadDBButhes();
+        List<Batch> batches = getAllBatchUseCases.invoke();
         Vector<BatchItem> batchItems = new Vector<>();
         
-        for (Butches batch : batches) {
+        for (Batch batch : batches) {
             if (batch.getStatus().equalsIgnoreCase("В продаже")) {
                 batchItems.add(new BatchItem(batch));
             }
@@ -220,7 +227,7 @@ public class AddOrderDialog extends JDialog {
         return approved;
     }
 
-    public Butches getSelectedBatch() {
+    public Batch getSelectedBatch() {
         return selectedBatch;
     }
 
@@ -258,13 +265,13 @@ public class AddOrderDialog extends JDialog {
 
     // Вспомогательный класс для отображения партий в выпадающем списке
     private static class BatchItem {
-        private final Butches batch;
+        private final Batch batch;
 
-        public BatchItem(Butches batch) {
+        public BatchItem(Batch batch) {
             this.batch = batch;
         }
 
-        public Butches getBatch() {
+        public Batch getBatch() {
             return batch;
         }
 

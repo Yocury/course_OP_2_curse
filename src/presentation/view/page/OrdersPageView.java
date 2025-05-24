@@ -1,15 +1,15 @@
-package view;
+package presentation.view.page;
 
-import Data.DataService;
+import data.DataService;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class OrdersPage extends PagePanel {
+public class OrdersPageView extends PagePanelView {
     private final DataService dataService;
 
-    public OrdersPage() {
+    public OrdersPageView() {
         super("Заказы");
         dataService = new DataService(); // Логика получения данных
     }

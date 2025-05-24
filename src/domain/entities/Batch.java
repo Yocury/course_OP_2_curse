@@ -1,16 +1,17 @@
-package Entities;
+package domain.entities;
 
-public class Butches {
+public class Batch {
     private int id;
     private String provider; // поставщик
-    private final String date;
+    private String date;
     private int amount; // Стоимость
     private String status; //Состояние
     private int count;
-    private final int avgPrice;
+    private int avgPrice;
     private int remainder;
 
-    public Butches(int id, String provider, String date, int amount, String status, int count, int avgPrice) {
+
+    public Batch(int id, String provider, String date, int amount, String status, int count, int avgPrice) {
         this.id = id;
         this.provider = provider;
         this.date = date;
@@ -19,6 +20,22 @@ public class Butches {
         this.count = count;
         this.avgPrice = avgPrice;
     }
+
+    public Batch() {
+
+    }
+
+    public void newBatch(int id, String provider, String date, int amount, String status, int count) {
+        this.id = id;
+        this.provider = provider;
+        this.date = date;
+        this.amount = amount;
+        this.status = status;
+        this.count = count;
+        this.avgPrice = count / amount;
+
+    }
+
 
     public String[] toDoubleArray() { // Для записи в таблицу.
         return new String[]{
@@ -83,5 +100,9 @@ public class Butches {
 
     public int getAvgPrice() {
         return avgPrice;
+    }
+
+    public String getDate() {
+        return date;
     }
 }

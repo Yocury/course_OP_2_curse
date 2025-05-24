@@ -1,16 +1,16 @@
-package view;
+package presentation.view.page;
 
-import Data.DataService;
+import data.DataService;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ExpensesPage extends PagePanel {
+public class ExpensesPageView extends PagePanelView {
     private final DataService dataService;
 
 
-    public ExpensesPage() {
+    public ExpensesPageView() {
         super("Расходы");
         dataService = new DataService();
     }

@@ -1,17 +1,25 @@
-package view;
+package presentation.view.page;
 //ToDo: Коментарии.
 
-import Data.DB_manager;
-import Data.DataService;
-import Entities.Butches;
-import Entities.Order;
+import data.DBManager;
+import data.DataService;
+import domain.entities.Batch;
+import domain.entities.Order;
+import domain.usecases.DeleteUseCase;
+import domain.usecases.batche.AddBatchUseCase;
+import domain.usecases.order.AddOrderUseCase;
+import presentation.MyConfig;
+import presentation.view.add.AddBatchDialog;
+import presentation.view.add.AddExpenseDialog;
+import presentation.view.add.AddOrderDialog;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 
-public abstract class PagePanel extends JPanel {
+public abstract class PagePanelView extends JPanel {
     protected JTable table;
     protected JLabel titleLabel;
     protected JButton addButton;
@@ -19,12 +27,17 @@ public abstract class PagePanel extends JPanel {
     protected JButton editButton;
     protected JButton refreshButton;
     public JPanel buttonPanel;
-    private final DB_manager db;
+    private final AddBatchUseCase addBatchUseCase;
+    private final AddOrderUseCase addOrderUseCase;
+    private final DeleteUseCase deleteUseCase;
+    private final DBManager db;
     private final DataService.BatchAnalysis dataService;
 
-    public PagePanel(String title) {
+    public PagePanelView(String title) {
         setLayout(new BorderLayout());
-        db = new DB_manager();
+        db = new DBManager();
+        this.addBatchUseCase = MyConfig.instance().addBatchUseCase();
+        this.addOrderUseCase = MyConfig.instance().addOrderUseCase();
         dataService = new DataService.BatchAnalysis();
         // Заголовок страницы
         titleLabel = new JLabel(title, SwingConstants.CENTER);
@@ -77,7 +90,18 @@ public abstract class PagePanel extends JPanel {
             addButton.addActionListener(e -> AddButches());
             deleteButton.addActionListener(e -> Delete("batches"));
         }
+        deleteUseCase = null;
     }
+
+    public void SetAddListener(ActionListener buttonLister)
+    {
+        this.addButton.addActionListener(buttonLister);
+    }
+    public void SetDeleteListener(ActionListener buttonLister)
+    {
+        this.deleteButton.addActionListener(buttonLister);
+    }
+
 
     private void EditCellOrders() {
         int selectedRow = table.getSelectedRow();
@@ -185,18 +209,17 @@ public abstract class PagePanel extends JPanel {
                 JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                this.db.DeleteLineDB(title, id);
-                JOptionPane.showMessageDialog(this, "Строка удалена успешно.", "Успех", JOptionPane.INFORMATION_MESSAGE);
+                this.deleteUseCase.invoke(title, id);
             } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Ошибка при удалении строки: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+                throw new RuntimeException(e);
             }
+            JOptionPane.showMessageDialog(this, "Строка удалена успешно.", "Успех", JOptionPane.INFORMATION_MESSAGE);
         }
 
     }
 
     private void AddExpenses() {
-        AddExpenseDialog dialog = new AddExpenseDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+        AddExpenseDialog dialog = new AddExpenseDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ?
             (JFrame) SwingUtilities.getWindowAncestor(this) : null);
         dialog.setVisible(true);
 
@@ -224,7 +247,7 @@ public abstract class PagePanel extends JPanel {
     protected abstract String getColumnNameByIndex(int colummn);
 
     private void AddButches() {
-        AddBatchDialog dialog = new AddBatchDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+        AddBatchDialog dialog = new AddBatchDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ?
             (JFrame) SwingUtilities.getWindowAncestor(this) : null);
         dialog.setVisible(true);
 
@@ -234,15 +257,16 @@ public abstract class PagePanel extends JPanel {
 
         // Получаем данные из диалога
         String provider = dialog.getProvider();
-        String amount = dialog.getAmount();
+        int amount = Integer.parseInt(dialog.getAmount());
         String status = dialog.getStatus();
         String date = dialog.getDate();
-        String count = dialog.getCount();
+        int count = Integer.parseInt(dialog.getCount());
 
         // Добавляем партию в базу данных
         int id = db.getId("batches") + 1;
-        db.connect();
-        db.addButchesDB(id, provider, amount, status, date, Integer.parseInt(count));
+        Batch batch = new Batch();
+        batch.newBatch(id,provider,date,amount,status,count);
+        addBatchUseCase.invoke(batch);
         
         // Обновляем данные в таблице
         updateData();
@@ -251,7 +275,7 @@ public abstract class PagePanel extends JPanel {
 
     private void AddOrder() {
         // Показываем диалог добавления заказа
-        AddOrderDialog dialog = new AddOrderDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ? 
+        AddOrderDialog dialog = new AddOrderDialog(SwingUtilities.getWindowAncestor(this) instanceof JFrame ?
             (JFrame) SwingUtilities.getWindowAncestor(this) : null);
         dialog.setVisible(true);
 
@@ -259,7 +283,7 @@ public abstract class PagePanel extends JPanel {
             return;
         }
 
-        Butches selectedBatch = dialog.getSelectedBatch();
+        Batch selectedBatch = dialog.getSelectedBatch();
         if (selectedBatch == null) {
             return;
         }
@@ -276,15 +300,15 @@ public abstract class PagePanel extends JPanel {
 
         // Добавляем заказ в базу данных
         int id = db.getId("orders") + 1;
-        db.connect();
-        db.addOrderDB(id, selectedBatch.getId(), source, count, street, building, date, phone, status, price);
+        Order newOrder = new Order(id,source, Integer.parseInt(count), street, building, selectedBatch.getId(), date, phone, status, Integer.parseInt(price));
+        addOrderUseCase.invoke(newOrder);
         
         // Обновляем данные в таблице
         updateData();
     }
 
     public void updateBatchStatusIfEmpty(int batchId) {
-        Butches batch = dataService.getBatchById(batchId);
+        Batch batch = dataService.getBatchById(batchId);
         if (batch == null) {
             System.out.println("Партия с ID " + batchId + " не найдена.");
             return;

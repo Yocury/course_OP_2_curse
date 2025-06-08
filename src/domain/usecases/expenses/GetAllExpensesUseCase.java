@@ -2,13 +2,14 @@ package domain.usecases.expenses;
 
 import domain.entities.Expenses;
 import domain.port.ExpensesRepository;
+import java.util.List;
 
-public class AddExpensesUseCase {
+public class GetAllExpensesUseCase {
     private final ExpensesRepository expensesRepository;
-    public AddExpensesUseCase(ExpensesRepository expensesRepository) {
+    public GetAllExpensesUseCase(ExpensesRepository expensesRepository) {
         this.expensesRepository = expensesRepository;
     }
-    public Expenses invoke(Expenses expenses) {
-        return expensesRepository.addNew(expenses);
+    public List<Expenses> invoke() {
+        return expensesRepository.getAll();
     }
-}
+} 

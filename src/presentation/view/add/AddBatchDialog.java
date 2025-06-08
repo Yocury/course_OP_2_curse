@@ -1,5 +1,6 @@
 package presentation.view.add;
 
+import domain.entities.Batch;
 import domain.usecases.batche.AddBatchUseCase;
 import presentation.MyConfig;
 
@@ -14,12 +15,55 @@ public class AddBatchDialog extends JDialog {
     private JTextField dateField;
     private JTextField countField;
     private boolean approved = false;
+    private boolean isEditMode = false;
+    private String[] statusOptions;
+    private Batch editingBatch = null;
 
     public AddBatchDialog(JFrame parent) {
-        super(parent, "Добавление новой партии", true);
-        //this.db = new DB_manager();
-        this.addBatchUseCase = MyConfig.instance().addBatchUseCase();
+        this(parent, null);
+    }
+
+
+    public AddBatchDialog(JFrame parent, Batch batchToEdit) {
+        super(parent, batchToEdit == null ? "Добавление новой партии" : "Редактирование партии", true);
+        this.addBatchUseCase = presentation.MyConfig.instance().addBatchUseCase();
+        this.isEditMode = batchToEdit != null;
+        this.editingBatch = batchToEdit;
+        if (isEditMode) {
+            this.statusOptions = new String[]{"Отменена", "Продана", "В продаже"};
+        } else {
+            this.statusOptions = new String[]{"В продаже", "В обработке"};
+        }
         setupUI();
+        if (isEditMode) {
+            populateFields();
+        }
+    }
+
+    private void populateFields() {
+        if (editingBatch == null) return;
+
+        providerField.setText(editingBatch.getProvider());
+        amountField.setText(String.valueOf(editingBatch.getAmount()));
+        dateField.setText(editingBatch.getDate());
+        countField.setText(String.valueOf(editingBatch.getCount()));
+
+        // Set status
+        for (int i = 0; i < statusComboBox.getItemCount(); i++) {
+            if (statusComboBox.getItemAt(i).equals(editingBatch.getStatus())) {
+                statusComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // Disable non-editable fields based on CheckForEdit rules
+        // ID, amount, and date are not editable
+        amountField.setEnabled(false);
+        dateField.setEnabled(false);
+    }
+
+    public void setStatusOptions(String[] statusOptions) {
+        this.statusOptions = statusOptions;
     }
 
     private void setupUI() {
@@ -29,22 +73,30 @@ public class AddBatchDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
 
-        // Создаем компоненты
+        // Title label
+        JLabel titleLabel = new JLabel(isEditMode ? "Редактирование партии" : "Добавление новой партии", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        add(titleLabel, gbc);
+        gbc.gridwidth = 1;
+
+        // Create components
         providerField = new JTextField(20);
         amountField = new JTextField(20);
         dateField = new JTextField(20);
         countField = new JTextField(20);
-        String[] statusOptions = {"В обработке", "В продаже"};
         statusComboBox = new JComboBox<>(statusOptions);
 
-        // Добавляем компоненты с метками
-        addLabelAndField("Поставщик:", providerField, gbc, 0);
-        addLabelAndField("Стоимость:", amountField, gbc, 1);
-        addLabelAndField("Статус:", statusComboBox, gbc, 2);
-        addLabelAndField("Дата:", dateField, gbc, 3);
-        addLabelAndField("Количество:", countField, gbc, 4);
+        // Add components with labels
+        addLabelAndField("Поставщик:", providerField, gbc, 1);
+        addLabelAndField("Стоимость:", amountField, gbc, 2);
+        addLabelAndField("Статус:", statusComboBox, gbc, 3);
+        addLabelAndField("Дата:", dateField, gbc, 4);
+        addLabelAndField("Количество:", countField, gbc, 5);
 
-        // Кнопки
+        // Buttons
         JPanel buttonPanel = new JPanel();
         JButton okButton = new JButton("OK");
         JButton cancelButton = new JButton("Отмена");
@@ -62,7 +114,7 @@ public class AddBatchDialog extends JDialog {
         buttonPanel.add(cancelButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
         add(buttonPanel, gbc);
 

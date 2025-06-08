@@ -1,6 +1,7 @@
 package presentation.view.add;
 
 import domain.entities.Batch;
+import domain.entities.Order;
 import domain.usecases.batche.GetAllBatchUseCases;
 import domain.usecases.order.AddOrderUseCase;
 import domain.usecases.order.GetAllOrderUseCase;
@@ -25,16 +26,83 @@ public class AddOrderDialog extends JDialog {
     private JComboBox<String> statusComboBox;
     private JTextField priceField;
     private boolean approved = false;
+
+
     private Batch selectedBatch = null;
     private JLabel avgPriceLabel;
+    private boolean isEditMode = false;
+    private Order editingOrder = null;
+    private String[] statusOptions;
 
     public AddOrderDialog(JFrame parent) {
-        super(parent, "Добавление нового заказа", true);
-        //this.db = new DB_manager();
-        this.addOrderUseCase = MyConfig.instance().addOrderUseCase();
-        this.getAllOrderUseCase = MyConfig.instance().getAllOrderUseCase();
-        this.getAllBatchUseCases = MyConfig.instance().getAllBatchUseCases();
+        this(parent, null);
+    }
+
+    public AddOrderDialog(JFrame parent, Order orderToEdit) {
+        super(parent, orderToEdit == null ? "Добавление нового заказа" : "Редактирование заказа", true);
+        this.addOrderUseCase = presentation.MyConfig.instance().addOrderUseCase();
+        this.getAllOrderUseCase = presentation.MyConfig.instance().getAllOrderUseCase();
+        this.getAllBatchUseCases = presentation.MyConfig.instance().getAllBatchUseCases();
+        this.isEditMode = orderToEdit != null;
+        this.editingOrder = orderToEdit;
+
+        // Устанавливаем доступные статусы до инициализации UI
+        if (isEditMode) {
+            this.statusOptions = new String[]{"В исполнении", "Выполнен", "В обработке", "Отменен"};
+        } else {
+            this.statusOptions = new String[]{"В обработке", "В исполнении"};
+        }
+
         setupUI();
+        if (isEditMode) {
+            populateFields();
+        } else {
+            setFieldsEnabled(true); // Все поля должны быть активны для нового заказа
+        }
+    }
+
+    private void populateFields() {
+        if (editingOrder == null) return;
+        
+        // Сначала включаем все поля для редактирования
+        setFieldsEnabled(true);
+
+        // Найти и выбрать партию
+        List<Batch> batches = getAllBatchUseCases.invoke();
+        for (Batch batch : batches) {
+            if (batch.getId() == editingOrder.getId_batches()) {
+                for (int i = 0; i < batchComboBox.getItemCount(); i++) {
+                    BatchItem item = batchComboBox.getItemAt(i);
+                    if (item.getBatch().getId() == batch.getId()) {
+                        batchComboBox.setSelectedIndex(i);
+                        selectedBatch = batch;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        // Заполняем остальные поля
+        sourceField.setText(editingOrder.getSourse());
+        countField.setText(String.valueOf(editingOrder.getCount()));
+        streetField.setText(editingOrder.getStreet());
+        buildingField.setText(editingOrder.getBuilding());
+        dateField.setText(editingOrder.getDate());
+        phoneField.setText(editingOrder.getNumber());
+        priceField.setText(String.valueOf(editingOrder.getPrice()));
+
+        // Устанавливаем статус
+        for (int i = 0; i < statusComboBox.getItemCount(); i++) {
+            if (statusComboBox.getItemAt(i).equals(editingOrder.getStatus())) {
+                statusComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // Теперь отключаем конкретные поля, которые не должны быть редактируемыми
+        sourceField.setEnabled(false); // Источник не редактируется согласно правилам checkForEdit
+        batchComboBox.setEnabled(false); // ID партии не редактируется
     }
 
     private void setupUI() {
@@ -44,7 +112,7 @@ public class AddOrderDialog extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Заголовок для выбора партии
-        JLabel titleLabel = new JLabel("Выберите партию к заказу", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(isEditMode ? "Редактирование заказа" : "Выберите партию к заказу", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -94,8 +162,9 @@ public class AddOrderDialog extends JDialog {
         dateField = new JTextField(20);
         phoneField = new JTextField(20);
         priceField = new JTextField(20);
-        String[] statusOptions = {"В обработке", "В исполнении", };
-        statusComboBox = new JComboBox<>(statusOptions);
+        
+        // Используем статусы, установленные в конструкторе
+        statusComboBox = new JComboBox<>(this.statusOptions);
 
         // Добавляем компоненты с метками
         addLabelAndField("Источник:", sourceField, gbc, 3);
@@ -106,9 +175,6 @@ public class AddOrderDialog extends JDialog {
         addLabelAndField("Номер телефона:", phoneField, gbc, 8);
         addLabelAndField("Состояние:", statusComboBox, gbc, 9);
         addLabelAndField("Стоимость за ед.:", priceField, gbc, 10);
-
-        // Изначально делаем поля ввода неактивными
-        setFieldsEnabled(false);
 
         // Кнопки
         JPanel buttonPanel = new JPanel();
@@ -136,6 +202,16 @@ public class AddOrderDialog extends JDialog {
         setLocationRelativeTo(getParent());
     }
 
+    public void setSelectedBatch(int id) {
+        List<Batch> batches = getAllBatchUseCases.invoke();
+        for(Batch batch : batches) {
+            if(batch.getId() == id)
+            {
+                this.selectedBatch = batch;
+            };
+        }
+    }
+
     private void setFieldsEnabled(boolean enabled) {
         sourceField.setEnabled(enabled);
         countField.setEnabled(enabled);
@@ -157,7 +233,7 @@ public class AddOrderDialog extends JDialog {
     }
 
     private boolean validateFields() {
-        if (selectedBatch == null) {
+        if (selectedBatch == null && !isEditMode) {
             showError("Выберите партию");
             return false;
         }
@@ -259,6 +335,10 @@ public class AddOrderDialog extends JDialog {
         return (String) statusComboBox.getSelectedItem();
     }
 
+    public void setStatusOptions(String[] statusOptions) {
+        this.statusOptions = statusOptions;
+    }
+
     public String getPrice() {
         return priceField.getText().trim();
     }
@@ -278,7 +358,7 @@ public class AddOrderDialog extends JDialog {
         @Override
         public String toString() {
             return "Партия #" + batch.getId() + " - " + batch.getProvider() + 
-                   " (доступно: " + batch.getCount() + " шт.)";
+                   " (доступно: " + batch.getRemainder() + " шт.)";
         }
     }
 } 

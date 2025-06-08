@@ -10,7 +10,7 @@ public class GetAllOrderUseCase {
     public GetAllOrderUseCase(OrdersRepository ordersRepository) {
         this.ordersRepository = ordersRepository;
     }
-    private List<Order> invoke(){
+    public List<Order> invoke(){
         return this.ordersRepository.getAll();
     }
 }

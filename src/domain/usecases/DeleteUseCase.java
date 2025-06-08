@@ -1,20 +1,19 @@
 package domain.usecases;
 
-import data.DBManager;
-
-import java.sql.SQLException;
+import data.db_manager.DBManager;
 
 public class DeleteUseCase {
-    private String title;
-    private int id;
-    private DBManager db = new DBManager();
+    private final DBManager db;
 
-    public DeleteUseCase(String title, int id)
-    {
-        this.title = title;
-        this.id = id;
+    public DeleteUseCase(DBManager db) {
+        this.db = db;
     }
-    public void invoke(String title, int id) throws SQLException {
-        db.DeleteLineDB(title,id);
+
+    public void delete(String title, int id) {
+        try {
+            db.delete(title, id);
+        } catch (Exception e) {
+            System.err.println("Ошибка при удалении: " + e.getMessage());
+        }
     }
 }

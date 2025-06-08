@@ -2,12 +2,12 @@ package domain.usecases.expenses;
 
 import domain.port.ExpensesRepository;
 
-public class DeleteExpensesUseCase {
+public class GetNextExpenseIdUseCase {
     private final ExpensesRepository expensesRepository;
-    public DeleteExpensesUseCase(ExpensesRepository expensesRepository) {
+    public GetNextExpenseIdUseCase(ExpensesRepository expensesRepository) {
         this.expensesRepository = expensesRepository;
     }
-    public boolean invoke(int id) {
-        return expensesRepository.delete(id);
+    public int invoke() {
+        return expensesRepository.getNextId();
     }
-}
+} 

@@ -1,73 +1,99 @@
 package presentation.view.page;
 
-import data.DataService;
-
+import domain.entities.Order;
+import domain.usecases.order.FilterOrdersByStatusUseCase;
+import domain.usecases.order.GetAllOrderUseCase;
+import domain.usecases.order.FilterOrdersByBatchUseCase;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
+import presentation.controller.OrdersController;
 
 public class OrdersPageView extends PagePanelView {
-    private final DataService dataService;
+    private final FilterOrdersByStatusUseCase filterOrdersByStatusUseCase;
+    private final GetAllOrderUseCase getAllOrderUseCase;
+    private final FilterOrdersByBatchUseCase filterOrdersByBatchUseCase;
+    private OrdersController controller;
+    public JButton addButton, deleteButton, editButton, updateButton, filterButton, filterBatchButton;
 
-    public OrdersPageView() {
+    public OrdersPageView(FilterOrdersByStatusUseCase filterOrdersByStatusUseCase, GetAllOrderUseCase getAllOrderUseCase, FilterOrdersByBatchUseCase filterOrdersByBatchUseCase) {
         super("Заказы");
-        dataService = new DataService(); // Логика получения данных
+        this.filterOrdersByStatusUseCase = filterOrdersByStatusUseCase;
+        this.getAllOrderUseCase = getAllOrderUseCase;
+        this.filterOrdersByBatchUseCase = filterOrdersByBatchUseCase;
+    }
+
+    public void setController(OrdersController controller) {
+        this.controller = controller;
     }
 
     @Override
-    public boolean CheckForEdit(int column) {
-        return (column > 1) && (column != 4);
-    }
+    protected void addCustomButtons() {
+        addButton = new JButton("Добавить");
+        deleteButton = new JButton("Удалить");
+        editButton = new JButton("Изменить");
+        updateButton = new JButton("Обновить");
+        filterButton = new JButton("Фильтрация по статусу");
+        filterBatchButton = new JButton("Показать заказы партии");
 
-    @Override
-    protected void addCustomButtons() { //Передаем кнопки.
-
-        //создаем кнопки для их передачи
-        JButton filterButton = new JButton("Фильтрация по партиям");
+        addButtonToPanel(addButton);
+        addButtonToPanel(deleteButton);
+        addButtonToPanel(editButton);
+        addButtonToPanel(updateButton);
         addButtonToPanel(filterButton);
-        filterButton.addActionListener(e -> filteringOrdersToBatches());
+        addButtonToPanel(filterBatchButton);
+    }
+
+    @Override
+    public void updateData() {
+        controller.onUpdate();
+    }
+
+    public void updateTable(List<Order> orders) {
+        String[][] tableData = new String[orders.size()][9];
+        for (int i = 0; i < orders.size(); i++) {
+            tableData[i] = orders.get(i).toDoubleArray();
+        }
+        table.setModel(new javax.swing.table.DefaultTableModel(
+                tableData,
+                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние"}
+        ));
+    }
+
+
+
+    @Override
+    public String FilteringToTypes() {
+        String type;
+        String[] types = {"Выполнен", "В исполнении", "В обработке", "Отменен"};
+        type = (String) JOptionPane.showInputDialog(this, "Введите тип расходов", "Фильтрация",
+                JOptionPane.QUESTION_MESSAGE, null, types, types[0]
+        );
+        if(type == null ) {
+            JOptionPane.showMessageDialog(this, "Изменения не внесены! Выберите тип. ");
+            return "all";
+        }
+        return type;
+    }
+
+
+
+
+    @Override
+    public boolean checkForEdit(int column) {
+        // ID, ID партии и статус не редактируются
+        return column != 0 && column != 1 && column != 5;
     }
 
     @Override
     public String getColumnNameByIndex(int column) {
-        ArrayList<String> columnNames = new ArrayList<>();
-        Collections.addAll(columnNames, "id", "sourse", "count", "street", "building", "ID batches", "date", "number", "status");
-        return columnNames.get(column);
+        String[] columnNames = {"id", "id_batches", "client", "date", "count", "status", "price"};
+        return columnNames[column];
     }
-
-    protected void filteringOrdersToBatches() {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Выберите партию для фильтрации.");
-                return;
-            }
-            String batchId = table.getValueAt(selectedRow, 5).toString();
-            showOrdersForBatch(batchId);
-    }
-
-    public void showOrdersForBatch(String batchId) {
-        var orders = dataService.getFilterOrdersDB(batchId);
-        String[][] tableData = new String[orders.size()][9]; // Убедитесь, что размер совпадает с количеством столбцов
-        for (int i = 0; i < orders.size(); i++) {
-            tableData[i] = orders.get(i);
-        }
-        table.setModel(new javax.swing.table.DefaultTableModel(
-                tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние", "Стоимость за ед."}
-        ));
-    }
-
 
     @Override
-    public void updateData() {
-        var orders = dataService.getOrdersFromDB();
-        String[][] tableData = new String[orders.size()][9]; // Увеличиваем размер массива
-        for (int i = 0; i < orders.size(); i++) {
-            tableData[i] = orders.get(i); // Данные заказа
-        }
-        table.setModel(new javax.swing.table.DefaultTableModel(
-                tableData,
-                new String[]{"ID", "Источник", "Кол-во", "Улица", "Дом", "ID партии", "Дата", "Номер телефона", "Состояние", "Стоимость за ед."} // Добавляем "ID"
-        ));
+    protected boolean isRowEditable(int selectedRow) {
+        // Проверяем статус заказа - если "Отменено", то редактировать нельзя
+        String status = (String) table.getValueAt(selectedRow, 5);
+        return !"Отменено".equalsIgnoreCase(status);
     }
 }

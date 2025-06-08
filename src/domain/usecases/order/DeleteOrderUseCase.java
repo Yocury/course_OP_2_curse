@@ -11,8 +11,8 @@ public class DeleteOrderUseCase {
         this.ordersRepository = ordersRepository;
     }
 
-    public Order invoke(Order order) {
-        return this.ordersRepository.Delete(int id, String title);
+    public boolean invoke(Order order) {
+        return this.ordersRepository.Delete("заказы", order.getId());
     }
 
 

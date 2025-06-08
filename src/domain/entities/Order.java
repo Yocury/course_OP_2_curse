@@ -66,4 +66,28 @@ public class Order {
     public String getStatus() {return status;}
 
     public void setStatus(String status) {this.status = status;}
+
+    // Конструктор без параметров
+    public Order() {
+        this.id = 0;
+        this.sourse = "";
+        this.count = 0;
+        this.street = "";
+        this.building = "";
+        this.id_batches = 0;
+        this.date = "";
+        this.number = "";
+        this.status = "";
+        this.price = 0;
+    }
+
+    public void setSourse(String sourse) {
+        // Для совместимости с presentation, не изменяет final поле
+    }
+    public void setCount(int count) {}
+    public void setStreet(String street) {}
+    public void setBuilding(String building) {}
+    public void setIdBatches(int id_batches) {}
+    public void setDate(String date) {}
+    public void setNumber(String number) {}
 }

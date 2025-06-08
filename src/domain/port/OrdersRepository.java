@@ -7,5 +7,9 @@ import java.util.List;
 public interface OrdersRepository {
     List<Order> getAll();
     Order addNew(Order order);
-    Order Delete(Order order, int id);
+    boolean Delete(String title, int id);
+    List<Order> filter(String filter);
+    List<Order> filterOnBatches(int id); //фильтр по партиям
+    int getNextId();
+    Order updateOrder(Order order);
 }
